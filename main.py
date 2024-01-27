@@ -7,11 +7,8 @@ import psycopg2
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'bananajezuta'
 
-# our database uri
-username = "postgres"
-password = 464130
-dbname = "testDB"
-app.config["SQLALCHEMY_DATABASE_URI"] = f"postgresql://{username}:{password}@100.124.214.138:5432/{dbname}"
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://fluoclip:464130@100.124.214.138:5432/test'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
@@ -37,7 +34,30 @@ def get_user(user_id):
         "email": "banana@banana.ba"
     }
     return jsonify(user_data), 200
+@app.route('/add-users', methods=['POST'])
+def add_user():
+    try:
+        # Podaci iz zahtjeva
+        data = request.json
 
+        # Stvaranje novog korisnika
+        new_user = User(name=data['name'], email=data['email'])
+
+        # Dodavanje korisnika u bazu podataka
+        db.session.add(new_user)
+        db.session.commit()
+
+        # Odgovor s potvrdom
+        response = {
+            'message': 'Korisnik uspješno dodan!',
+            'user_id': new_user.id
+        }
+        return jsonify(response), 201
+
+    except Exception as e:
+        # Ako dođe do pogreške
+        error_message = f'Došlo je do pogreške: {str(e)}'
+        return jsonify({'error': error_message}), 500
 
 
 if __name__ == "__main__":
