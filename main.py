@@ -18,7 +18,8 @@ db = SQLAlchemy(app)
 class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(1000), nullable = False)
+    firstName = db.Column(db.String(1000), nullable = False)
+    lastName = db.Column(db.String(1000), nullable = False)
     email = db.Column(db.String(6000), nullable = False)
 
 
@@ -26,19 +27,12 @@ class User(db.Model):
 def home():
     return "Home"
 
-@app.route("/get-user/<user_id>")
-def get_user(user_id):
-    user_data={
-        "user_id": user_id,
-        "name": "Banana",
-        "email": "banana@banana.ba"
-    }
-    return jsonify(user_data), 200
+
 @app.route('/add-users', methods=['POST'])
 def add_user():
     try:
         data = request.json
-        new_user = User(name=data['name'], email=data['email'])
+        new_user = User(firstName=data['firstName'],lastName=data['lastName'], email=data['email'])
         db.session.add(new_user)
         db.session.commit()
         response = {
