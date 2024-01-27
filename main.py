@@ -37,28 +37,45 @@ def get_user(user_id):
 @app.route('/add-users', methods=['POST'])
 def add_user():
     try:
-        # Podaci iz zahtjeva
         data = request.json
-
-        # Stvaranje novog korisnika
         new_user = User(name=data['name'], email=data['email'])
-
-        # Dodavanje korisnika u bazu podataka
         db.session.add(new_user)
         db.session.commit()
-
-        # Odgovor s potvrdom
         response = {
-            'message': 'Korisnik uspješno dodan!',
+            'message': 'User added',
             'user_id': new_user.id
         }
         return jsonify(response), 201
 
     except Exception as e:
-        # Ako dođe do pogreške
         error_message = f'Došlo je do pogreške: {str(e)}'
         return jsonify({'error': error_message}), 500
 
+
+@app.route('/delete-users/<int:user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    try:
+        # Pronalaženje korisnika po ID-u
+        user_to_delete = User.query.get(user_id)
+
+        if user_to_delete:
+            # Brisanje korisnika iz baze podataka
+            db.session.delete(user_to_delete)
+            db.session.commit()
+
+            # Odgovor s potvrdom
+            response = {
+                'message': f'Korisnik s ID-om {user_id} uspješno obrisan!'
+            }
+            return jsonify(response), 200
+        else:
+            # Ako korisnik nije pronađen
+            return jsonify({'error': f'Korisnik s ID-om {user_id} nije pronađen.'}), 404
+
+    except Exception as e:
+        # Ako dođe do pogreške
+        error_message = f'Došlo je do pogreške: {str(e)}'
+        return jsonify({'error': error_message}), 500
 
 if __name__ == "__main__":
     with app.app_context():
