@@ -14,6 +14,9 @@ def get_user(user_id):
         "email": "banana@banana.ba"
     }
 
+    
+    return jsonify(user_data), 200
+
 
 
 if __name__ == "__main__":
