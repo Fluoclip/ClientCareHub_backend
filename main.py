@@ -14,9 +14,6 @@ def get_user(user_id):
         "email": "banana@banana.ba"
     }
 
-    extra = request.args.get("extra")
-    if extra:
-        user_data["extra"] = extra
     
     return jsonify(user_data), 200
 
