@@ -1,22 +1,24 @@
 from flask import Flask, request, jsonify, url_for, redirect, render_template
 from flask_sqlalchemy import SQLAlchemy 
+import psycopg2 
+
 
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'bananajezuta'
 
 # our database uri
-username = "fluoclip"
-password = "464130"
+username = "postgres"
+password = 464130
 dbname = "testDB"
-app.config["SQLALCHEMY_DATABASE_URI"] = f"postgresql://{username}:{password}@localhost:5432/{dbname}"
+app.config["SQLALCHEMY_DATABASE_URI"] = f"postgresql://{username}:{password}@100.124.214.138:5432/{dbname}"
 
 db = SQLAlchemy(app)
 
 
 
 # Create A Model For Table
-class BlogPosts(db.Model):
+class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(1000), nullable = False)
@@ -39,4 +41,6 @@ def get_user(user_id):
 
 
 if __name__ == "__main__":
+    with app.app_context():
+        db.create_all() # <--- create db object.
     app.run(debug=True)
