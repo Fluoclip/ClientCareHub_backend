@@ -1,10 +1,7 @@
 from flask import Flask, request, jsonify, url_for, redirect, render_template
-from flask_sqlalchemy import SQLAlchemy 
 import psycopg2 
-from models import user_model
-from models import termin_model
-
-
+from models.models import User, Termin
+from models import db
 
 
 
@@ -16,12 +13,11 @@ app.config['SECRET_KEY'] = 'bananajezuta'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://fluoclip:464130@100.124.214.138:5432/test'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db = SQLAlchemy(app)
 
-User = user_model.User
-Termin = termin_model.Termin
 
- # deklariran User koji dolazi iz paketa models(da ne moram stalno pisat user_model.user)
+db.init_app(app)
+
+# ...
 
 
 
@@ -84,16 +80,14 @@ def delete_user(user_id):
 
 @app.route('/add-termin', methods=['POST'])
 def add_termin():
-    
-   
     try:
         data = request.json
-        new_termin = Termin(location=data['location'],time=data['tame'], date=data['date'], description=data['description'])
+        new_termin = Termin(client=data['client'],location=data['location'],time=data['time'], date=data['date'], description=data['description'])
         db.session.add(new_termin)
         db.session.commit()
         response = {
             'message': 'Termin added',
-            'user_id': new_termin.id
+            'termin_id': new_termin.id
         }
         return jsonify(response), 201
 
