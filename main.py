@@ -1,27 +1,31 @@
 from flask import Flask, request, jsonify, url_for, redirect, render_template
 from flask_sqlalchemy import SQLAlchemy 
 import psycopg2 
+from models import user_model
+from models import termin_model
+
+
+
+
+
 
 
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'bananajezuta'
-
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://fluoclip:464130@100.124.214.138:5432/test'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
+User = user_model.User
+Termin = termin_model.Termin
+
+ # deklariran User koji dolazi iz paketa models(da ne moram stalno pisat user_model.user)
 
 
-# Create A Model For Table
-class User(db.Model):
-    __tablename__ = 'user'
-    id = db.Column(db.Integer, primary_key=True)
-    firstName = db.Column(db.String(1000), nullable = False)
-    lastName = db.Column(db.String(1000), nullable = False)
-    email = db.Column(db.String(6000), nullable = False)
 
+#USER ROUTES
 
 @app.route("/")
 def home():
@@ -30,6 +34,8 @@ def home():
 
 @app.route('/add-users', methods=['POST'])
 def add_user():
+    
+   
     try:
         data = request.json
         new_user = User(firstName=data['firstName'],lastName=data['lastName'], email=data['email'])
@@ -70,6 +76,38 @@ def delete_user(user_id):
         # Ako dođe do pogreške
         error_message = f'Došlo je do pogreške: {str(e)}'
         return jsonify({'error': error_message}), 500
+
+
+
+
+#TERMIN ROUTES
+
+@app.route('/add-termin', methods=['POST'])
+def add_termin():
+    
+   
+    try:
+        data = request.json
+        new_termin = Termin(location=data['location'],time=data['tame'], date=data['date'], description=data['description'])
+        db.session.add(new_termin)
+        db.session.commit()
+        response = {
+            'message': 'Termin added',
+            'user_id': new_termin.id
+        }
+        return jsonify(response), 201
+
+    except Exception as e:
+        error_message = f'Došlo je do pogreške: {str(e)}'
+        return jsonify({'error': error_message}), 500
+
+
+
+
+
+
+
+
 
 if __name__ == "__main__":
     with app.app_context():
